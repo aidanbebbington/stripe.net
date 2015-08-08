@@ -1,25 +1,24 @@
-![Stripe.net](http://i.imgur.com/9UzKGQd.png)  
+![stripe.net](http://i.imgur.com/9UzKGQd.png)  
   
-![Donate](https://pledgie.com/campaigns/22262.png)  
+If you would like to donate to help support stripe.net, my paypal address is jaymedavis@gmail.com. It's certainly not required, but I would appreciate it. :)  
   
 ##**If you would like to submit a pull request.**
 First, thank you! It is a lot of work to learn someone else's codebase, so I appreciate it. Here are a few things that would help me out:
 * Do not submit pull requests for more than one fix. Keep them small and focused.
 * Please code review yourself. There are a lot of pull requests with typos and mistakes. Don't worry, we all do it. But a code review of yourself will help. :)
 * Please review the diff in GitHub that I will see before I merge your pull requests. If it's hard for you to tell what the differences are, it's going to be hard for me too.
-* Please do not include files in your pull requests that are just white space changes.  
 
 Quick Start
 -----------
 
 It is recommended that you install Stripe.net via NuGet. If you wish to build it yourself via build.cmd, you will need
-ruby installed along with the gems albacore and zip.
+ruby installed along with the gems albacore and zip. You could also just build the assembly in Visual Studio by opening the solution and compiling.
 
 Add a reference to Stripe.net.dll.
 
-Next you will need to provide Stripe.net with your api key. There are 3 ways to do this: Choose one.
+Next you will need to provide Stripe.net with your api key. There are 4 ways to do this:
 
-a) Add an AppSetting with your api key to your config (this is the easiest way)
+a) Add an AppSetting with your api key to your config (this is the easiest way and will work throughout the app on every request)
 
 	<appSettings>
 	...
@@ -27,13 +26,18 @@ a) Add an AppSetting with your api key to your config (this is the easiest way)
 	...
 	</appSettings>
 
-b) In your application initialization, call (this is a programmatic way, but you only have to do it once during startup)
+b) In your application initialization, call this method (this is a programmatic way, but you only have to do it once during startup)
 
 	StripeConfiguration.SetApiKey("[your api key here]");
 
-c) In any of the service constructors documented below, you can optionally pass the api key (not recommended for single app/single key use). i.e...
+c) In any of the service constructors, you can optionally pass the api key (will be assigned that apikey for the life of the service instance).
 
 	var planService = new StripePlanService("[your api key here]");
+
+d) In any of the service calls, you can pass a [StripeRequestOptions](#striperequestoptions) object with the apikey specified.
+
+	var planService = new StripePlanService();
+	planService.Get(*planId*, new StripeRequestOptions() { ApiKey = "[your api key here]" });
 
 Stripe API Version
 ------------------
@@ -143,17 +147,17 @@ customer or a charge, but only used once.
 
 		// set these properties if passing full card details (do not
 		// set these properties if you set TokenId)
-		CardNumber = "4242424242424242",
-		CardExpirationYear = "2022",
-		CardExpirationMonth = "10",
-		CardAddressCountry = "US",                // optional
-		CardAddressLine1 = "24 Beef Flank St",    // optional
-		CardAddressLine2 = "Apt 24",              // optional
-		CardAddressCity = "Biggie Smalls",        // optional
-		CardAddressState = "NC",                  // optional
-		CardAddressZip = "27617",                 // optional
-		CardName = "Joe Meatballs",               // optional
-		CardCvc = "1223"                          // optional
+		Number = "4242424242424242",
+		ExpirationYear = "2022",
+		ExpirationMonth = "10",
+		AddressCountry = "US",                // optional
+		AddressLine1 = "24 Beef Flank St",    // optional
+		AddressLine2 = "Apt 24",              // optional
+		AddressCity = "Biggie Smalls",        // optional
+		AddressState = "NC",                  // optional
+		AddressZip = "27617",                 // optional
+		Name = "Joe Meatballs",               // optional
+		Cvc = "1223"                          // optional
 	};
 
 	// set this property if using a customer (stripe connect only)
@@ -184,24 +188,24 @@ a credit card or token, and various meta data.
 	myCustomer.Description = "Johnny Tenderloin (pork@email.com)";
 
 	// setting up the card
-	myCustomer.Card = new StripeCreditCardOptions()
+	myCustomer.Source = new StripeSourceOptions()
 	{
 		// set this property if using a token
 		TokenId = *tokenId*,
 
 		// set these properties if passing full card details (do not
 		// set these properties if you set TokenId)
-		CardNumber = "4242424242424242",
-		CardExpirationYear = "2022",
-		CardExpirationMonth = "10",
-		CardAddressCountry = "US",                // optional
-		CardAddressLine1 = "24 Beef Flank St",    // optional
-		CardAddressLine2 = "Apt 24",              // optional
-		CardAddressCity = "Biggie Smalls",        // optional
-		CardAddressState = "NC",                  // optional
-		CardAddressZip = "27617",                 // optional
-		CardName = "Joe Meatballs",               // optional
-		CardCvc = "1223"                          // optional
+		Number = "4242424242424242",
+		ExpirationYear = "2022",
+		ExpirationMonth = "10",
+		AddressCountry = "US",                // optional
+		AddressLine1 = "24 Beef Flank St",    // optional
+		AddressLine2 = "Apt 24",              // optional
+		AddressCity = "Biggie Smalls",        // optional
+		AddressState = "NC",                  // optional
+		AddressZip = "27617",                 // optional
+		Name = "Joe Meatballs",               // optional
+		Cvc = "1223"                          // optional
 	}
 
 	myCustomer.PlanId = *planId*;                          // only if you have a plan
@@ -224,28 +228,28 @@ Don't let this be intimidating - all of these fields are optional. You could jus
 	myCustomer.Description = "Johnny Tenderloin (pork@email.com)";
 
 	// setting up the card
-	myCustomer.Card = new StripeCreditCardOptions()
+	myCustomer.Source = new StripeSourceOptions()
 	{
 		// set this property if using a token
 		TokenId = *tokenId*,
 
 		// set these properties if passing full card details (do not
 		// set these properties if you set TokenId)
-		CardNumber = "4242424242424242",
-		CardExpirationYear = "2022",
-		CardExpirationMonth = "10",
-		CardAddressCountry = "US",                // optional
-		CardAddressLine1 = "24 Beef Flank St",    // optional
-		CardAddressLine2 = "Apt 24",              // optional
-		CardAddressCity = "Biggie Smalls",        // optional
-		CardAddressState = "NC",                  // optional
-		CardAddressZip = "27617",                 // optional
-		CardName = "Joe Meatballs",               // optional
-		CardCvc = "1223"                          // optional
+		Number = "4242424242424242",
+		ExpirationYear = "2022",
+		ExpirationMonth = "10",
+		AddressCountry = "US",                // optional
+		AddressLine1 = "24 Beef Flank St",    // optional
+		AddressLine2 = "Apt 24",              // optional
+		AddressCity = "Biggie Smalls",        // optional
+		AddressState = "NC",                  // optional
+		AddressZip = "27617",                 // optional
+		Name = "Joe Meatballs",               // optional
+		Cvc = "1223"                          // optional
 	}
 
 	// this will set the default card to use for this customer
-	myCustomer.DefaultCard = *cardId*;
+	myCustomer.DefaultSource = *cardId*;
 
 	myCustomer.Coupon = *couponId*;    // only if you have a coupon
 
@@ -311,24 +315,24 @@ When creating a card you can use either a card or a token
 	var myCard = new StripeCardCreateOptions();
 
 	// setting up the card
-	myCard.Card = new StripeCreditCardOptions()
+	myCard.Source = new StripeSourceOptions()
 	{
 		// set this property if using a token
 		TokenId = *tokenId*,
 
 		// set these properties if passing full card details (do not
 		// set these properties if you set TokenId)
-		CardNumber = "4242424242424242",
-		CardExpirationYear = "2022",
-		CardExpirationMonth = "10",
-		CardAddressCountry = "US",                // optional
-		CardAddressLine1 = "24 Beef Flank St",    // optional
-		CardAddressLine2 = "Apt 24",              // optional
-		CardAddressCity = "Biggie Smalls",        // optional
-		CardAddressState = "NC",                  // optional
-		CardAddressZip = "27617",                 // optional
-		CardName = "Joe Meatballs",               // optional
-		CardCvc = "1223"                          // optional
+		Number = "4242424242424242",
+		ExpirationYear = "2022",
+		ExpirationMonth = "10",
+		AddressCountry = "US",                // optional
+		AddressLine1 = "24 Beef Flank St",    // optional
+		AddressLine2 = "Apt 24",              // optional
+		AddressCity = "Biggie Smalls",        // optional
+		AddressState = "NC",                  // optional
+		AddressZip = "27617",                 // optional
+		Name = "Joe Meatballs",               // optional
+		Cvc = "1223"                          // optional
 	}
 
 	var cardService = new StripeCardService();
@@ -385,32 +389,28 @@ When creating a charge you can use either a card, customer, or a token. Only one
 	myCharge.Description = "Charge it like it's hot";
 
 	// setting up the card
-	myCharge.Card = new StripeCreditCardOptions()
+	myCharge.Source = new StripeSourceOptions()
 	{
 		// set this property if using a token
 		TokenId = *tokenId*,
 
 		// set these properties if passing full card details (do not
 		// set these properties if you set TokenId)
-		CardNumber = "4242424242424242",
-		CardExpirationYear = "2022",
-		CardExpirationMonth = "10",
-		CardAddressCountry = "US",                // optional
-		CardAddressLine1 = "24 Beef Flank St",    // optional
-		CardAddressLine2 = "Apt 24",              // optional
-		CardAddressCity = "Biggie Smalls",        // optional
-		CardAddressState = "NC",                  // optional
-		CardAddressZip = "27617",                 // optional
-		CardName = "Joe Meatballs",               // optional
-		CardCvc = "1223"                          // optional
+		Number = "4242424242424242",
+		ExpirationYear = "2022",
+		ExpirationMonth = "10",
+		AddressCountry = "US",                // optional
+		AddressLine1 = "24 Beef Flank St",    // optional
+		AddressLine2 = "Apt 24",              // optional
+		AddressCity = "Biggie Smalls",        // optional
+		AddressState = "NC",                  // optional
+		AddressZip = "27617",                 // optional
+		Name = "Joe Meatballs",               // optional
+		Cvc = "1223"                          // optional
 	}
 
 	// set this property if using a customer
 	myCharge.CustomerId = *customerId*;
-
-	// if using a customer, you may also set this property to charge
-	// a card other than the customer's default card
-	myCharge.CardId = *cardId*;
 
 	// set this if you have your own application fees (you must have your application configured first within Stripe)
 	myCharge.ApplicationFee = 25;
@@ -425,13 +425,6 @@ When creating a charge you can use either a card, customer, or a token. Only one
 
 	var chargeService = new StripeChargeService();
 	StripeCharge stripeCharge = chargeService.Get(*chargeId*);
-
-### Refunding a charge
-
-If you do not specify an amount, the entire charge is refunded. The StripeCharge entity has properties for "Refunded" (bool) and RefundedAmount.
-
-	var chargeService = new StripeChargeService();
-	StripeCharge stripeCharge = chargeService.Refund(*chargeId*, *amount*, *refundApplicationFee*);
 
 ### Capturing a charge
 
@@ -586,17 +579,17 @@ Recipients
 
 		// set these properties if passing full card details (do not
 		// set these properties if you set TokenId)
-		CardNumber = "4242424242424242",
-		CardExpirationYear = "2022",
-		CardExpirationMonth = "10",
-		CardAddressCountry = "US",                // optional
-		CardAddressLine1 = "24 Beef Flank St",    // optional
-		CardAddressLine2 = "Apt 24",              // optional
-		CardAddressCity = "Biggie Smalls",        // optional
-		CardAddressState = "NC",                  // optional
-		CardAddressZip = "27617",                 // optional
-		CardName = "Joe Meatballs",               // optional
-		CardCvc = "1223"                          // optional
+		Number = "4242424242424242",
+		ExpirationYear = "2022",
+		ExpirationMonth = "10",
+		AddressCountry = "US",                // optional
+		AddressLine1 = "24 Beef Flank St",    // optional
+		AddressLine2 = "Apt 24",              // optional
+		AddressCity = "Biggie Smalls",        // optional
+		AddressState = "NC",                  // optional
+		AddressZip = "27617",                 // optional
+		Name = "Joe Meatballs",               // optional
+		Cvc = "1223"                          // optional
 	}
 
 	var recipientService = new StripeRecipientService();
@@ -618,17 +611,17 @@ Recipients
 
 		// set these properties if passing full card details (do not
 		// set these properties if you set TokenId)
-		CardNumber = "4242424242424242",
-		CardExpirationYear = "2022",
-		CardExpirationMonth = "10",
-		CardAddressCountry = "US",                // optional
-		CardAddressLine1 = "24 Beef Flank St",    // optional
-		CardAddressLine2 = "Apt 24",              // optional
-		CardAddressCity = "Biggie Smalls",        // optional
-		CardAddressState = "NC",                  // optional
-		CardAddressZip = "27617",                 // optional
-		CardName = "Joe Meatballs",               // optional
-		CardCvc = "1223"                          // optional
+		Number = "4242424242424242",
+		ExpirationYear = "2022",
+		ExpirationMonth = "10",
+		AddressCountry = "US",                // optional
+		AddressLine1 = "24 Beef Flank St",    // optional
+		AddressLine2 = "Apt 24",              // optional
+		AddressCity = "Biggie Smalls",        // optional
+		AddressState = "NC",                  // optional
+		AddressZip = "27617",                 // optional
+		Name = "Joe Meatballs",               // optional
+		Cvc = "1223"                          // optional
 	}
 
 	var recipientService = new StripeRecipientService();
@@ -817,7 +810,64 @@ StripeEventListOptions supports a type, [StripeListOptions](#stripelistoptions-p
 Stripe Connect
 --------------
 
-For information about how to use Stripe Connect, see this comment https://github.com/jaymedavis/stripe.net/pull/43#issuecomment-10903921
+The Stripe Connect documentation can be a little intimidating, so I am going to try to break it down a little. Stripe Connect gives you the ability to accept money on behalf of other accounts, 
+and access or modify connected accounts depending on permissions.
+
+1) The first thing you need to do is [register your platform](https://dashboard.stripe.com/account/applications/settings) with Stripe Connect. Stripe.net at this time only supports 
+[Standalone Accounts](https://stripe.com/docs/connect/standalone-accounts), which is very useful because it supports every country Stripe supports. Managed Accounts are a 
+valuable service as well, but they are not available in Stripe.net yet.
+
+2) The next thing to do, is have another party connect to your site. To do this, put a link on your site which will start the authorization process, or you can use a 
+[Stripe Connect Button](https://stripe.com/about/resources). Your link will need to contain some querystring paramaters:
+
+	response_type: code
+	client_id:     *your client id from the stripe connect dashboard*
+	scope:         read_only (default), or read_write (lets you modify their data as well) // this is optional and defaults to read_only
+	redirect_uri:  this is optional, and will return the user to this page when the connection is complete
+	other options are available and you can learn more about them with the [Connect OAuth Reference](https://stripe.com/docs/connect/reference)
+
+3) When the user clicks the link on your site, they will be prompted to authorize the connection. At this point, they can create a new Stripe account or setup the connection with an existing account.
+
+Your link will look something like this:
+
+	https://connect.stripe.com/oauth/authorize?response_type=code&client_id=*your_client_id_from_the_stripe_connect_dashboard&scope=read_write
+
+4) The link above will return a code when the setup is complete (and also return back to your redirect_uri if specified). With this code, you can make a request to Stripe to get the StripeUserId for accessing
+their account.
+
+In Stripe.net, you can accomplish this with the following code:
+
+	var stripeOAuthTokenService = new StripeOAuthTokenService();
+	var stripeOAuthTokeCreateOptions = new StripeOAuthTokenCreateOptions()
+	{
+		ClientSecret = ConfigurationManager.AppSettings["StripeApiKey"],
+		Code = *the code returned from above*,
+		GrantType = "authorization_code"
+	};
+
+	StripeOAuthToken stripeOAuthToken = stripeOAuthTokenService.Create(_stripeOAuthTokeCreateOptions);
+
+5) You're done! Whenever you need to access the connected account, you simply need the StripeUserId from the StripeOAuthToken to be passed as part of the [StripeRequestOptions](#striperequestoptions) 
+which all service calls now support as an optional parameter.
+
+For example, to get the plans on the connected account, you could run the following code:
+
+	var planService = new StripePlanService();
+	StripePlan response = planService.List(null /* StripeListOptions */, new StripeRequestOptions() { StripeConnectAccountId = *the StripeUserId on the StripeOAuthToken above* });
+
+Depending on if your permissions are read_write or read_only, you can do anything on the connected account you can do on your own account just by passing the StripeUserId as
+part of StripeRequestOptions.
+
+StripeRequestOptions
+--------------------
+
+All of the service methods accept an optional StripeRequestOptions object. This is used if you need an [Idempotency Key](https://stripe.com/docs/api?lang=curl#idempotent_requests), 
+if you are using Stripe Connect, or if you want to pass the ApiKey on each method.
+
+	var requestOptions = new StripeRequestOptions();
+	requestOptions.ApiKey = *optional*;              // this is not required unless you choose to pass the apikey on every service call
+	requestOptions.IdempotencyKey = "some string";   // this is for Idempotent Requests - https://stripe.com/docs/api?lang=curl#idempotent_requests
+	requestOptions.StripeConnectAccountId = "acct_*" // if you are using Stripe Connect and want to issue a request on the connected account
 
 Errors
 ------

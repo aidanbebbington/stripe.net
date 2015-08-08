@@ -1,15 +1,24 @@
-﻿namespace Stripe
+﻿using System;
+
+namespace Stripe
 {
     public abstract class StripeService
     {
         public string ApiKey { get; set; }
 
-        public string StripeAccountId { get; set; }
-
-        public StripeService(string apiKey, string stripeAccountId)
+        protected StripeService(string apiKey)
         {
             ApiKey = apiKey;
-            StripeAccountId = stripeAccountId;
+        }
+
+        protected StripeRequestOptions SetupRequestOptions(StripeRequestOptions requestOptions)
+        {
+            if(requestOptions == null) requestOptions = new StripeRequestOptions();
+
+            if (!String.IsNullOrEmpty(ApiKey))
+                requestOptions.ApiKey = ApiKey;
+
+            return requestOptions;
         }
     }
 }
